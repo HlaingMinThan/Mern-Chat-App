@@ -7,6 +7,7 @@ import User from './models/User.js'
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -16,11 +17,22 @@ app.use(cors({
 }))
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose.connect(process.env.MONGO_URL)
 
 app.get('/' , (req,res) => {
     return res.send('hello from express chat api')
+})
+
+app.get('/me', (req,res) => {
+    let {token} = req.cookies;
+    if(token){
+        let payload = jwt.verify(token,process.env.JWT_SECRET);
+        return res.status(200).json(payload);
+    }else {
+        return res.json(null);
+    }
 })
 
 app.post('/register' ,  async(req,res) => {
@@ -34,7 +46,7 @@ app.post('/register' ,  async(req,res) => {
         
         //create jwt token
         let token = jwt.sign({
-            id:user._id,
+            _id:user._id,
             username,
         },process.env.JWT_SECRET);
         
