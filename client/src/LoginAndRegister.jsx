@@ -1,10 +1,14 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { UserContext } from "./contexts/UserContext";
 
 export default function LoginAndRegister() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('login');
+
+    const { user, setUser } = useContext(UserContext);
+    console.log(user)
     async function handleSubmit(ev) {
         ev.preventDefault()
         let api = isLoginOrRegister === 'login' ? '/login' : '/register';
@@ -12,7 +16,11 @@ export default function LoginAndRegister() {
             username,
             password
         });
-        console.log(res)
+
+        setUser({
+            _id: res.data._id,
+            username
+        })
     }
     return (
         <div className="bg-blue-50 h-screen flex items-center">
