@@ -7,8 +7,7 @@ export default function LoginAndRegister() {
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('login');
 
-    const { user, setUser } = useContext(UserContext);
-    console.log(user)
+    const { setUser } = useContext(UserContext);
     async function handleSubmit(ev) {
         ev.preventDefault()
         let api = isLoginOrRegister === 'login' ? '/login' : '/register';
