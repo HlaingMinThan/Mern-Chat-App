@@ -59,6 +59,34 @@ app.post('/register' ,  async(req,res) => {
     }
 })
 
+app.post('/login' , async (req,res) => {
+    try {
+        let { username , password } = req.body;
+        let user = await User.findOne({username});
+        if(user) {
+            let hashPassword = user.password;
+            let isPasswordOk = await bcrypt.compare(password,hashPassword);
+            if(isPasswordOk) {
+                //create jwt token
+                let token = jwt.sign({
+                    _id:user._id,
+                    username,
+                },process.env.JWT_SECRET);
+                return res.cookie('token', token).status(201).json({
+                    _id : user._id
+                });
+            }else {
+                return res.status(422).json({ message : 'password is something wrong.'});
+            }
+        }else {
+            return res.status(422).json({ message : 'user not found'});
+        }
+    }catch(e) {
+        console.log(e)
+        return res.status(500).json({ message : 'getting error on server'});
+    }
+})
+
 app.listen(process.env.PORT,() => {
     console.log('app is running on localhost:'+process.env.PORT);
 })
