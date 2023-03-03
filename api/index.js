@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import {WebSocketServer} from 'ws';
 
 const app = express();
 
@@ -87,6 +88,39 @@ app.post('/login' , async (req,res) => {
     }
 })
 
-app.listen(process.env.PORT,() => {
+app.post('/logout' , (req,res) => {
+    return res.cookie('token', '').status(201).json('user logged out');
+});
+
+const server = app.listen(process.env.PORT,() => {
     console.log('app is running on localhost:'+process.env.PORT);
+})
+
+const wss = new WebSocketServer({server});
+
+wss.on('connection' , (connection,req,res) => {
+    try {
+        let { cookie } = req.headers;
+        //handle logged in user
+        if(cookie) {
+            const [_,token] = cookie.split('token=')
+            let payload = jwt.verify(token,process.env.JWT_SECRET);
+            //add in connection instance because need to get online clients from ws clients array
+            connection._id = payload._id;
+            connection.username = payload.username;
+
+        }
+        //send client back for onelines user
+        let onlineUsers = [];
+        [...wss.clients].forEach(c => {
+            onlineUsers.push({_id : c._id, username : c.username});
+        })
+        connection.send(JSON.stringify({
+            onlineUsers
+        }))
+        console.log(onlineUsers)
+    }catch(e){
+        console.log(e)
+        console.log('something went wrong in web socket')
+    }
 })
