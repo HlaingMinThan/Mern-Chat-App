@@ -12,6 +12,10 @@ export default function ChatPage() {
         const ws = new WebSocket('ws://localhost:3001');
         setWs(ws);
         ws.addEventListener('message', handleServerMessage)
+
+        return () => {
+            ws.close()
+        }
     }, []);
 
     let handleServerMessage = (e) => {
