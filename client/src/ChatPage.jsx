@@ -5,6 +5,7 @@ import Avatar from './components/Avatar';
 
 export default function ChatPage() {
     const [onlinePeople, setOnlinePeople] = useState([]);
+    const [selectedUsername, setSelectedUsername] = useState("");
     const [newMessageText, setNewMessageText] = useState('');
     const { user, setUser } = useContext(UserContext);
     const [ws, setWs] = useState(null);
@@ -49,10 +50,12 @@ export default function ChatPage() {
 
                         Chatify</h2>
                     {!!onlinePeople.length && onlinePeople.map(username => (
-                        <div key={username} className="border border-b-1 p-3 text-lg flex gap-4 items-center cursor-pointer">
-                            <Avatar username={username} />
-                            <span className="text-lg">{username}</span>
-                        </div>
+                        username !== user.username && (
+                            <div key={username} className={"border border-b-1 p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUsername === username ? 'bg-blue-50' : '')} onClick={() => setSelectedUsername(username)}>
+                                <Avatar username={username} />
+                                <span className="text-lg">{username}</span>
+                            </div>
+                        )
                     ))}
                 </div>
                 <div className="p-2 text-center flex items-center justify-center">
