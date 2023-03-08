@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "./contexts/UserContext.jsx";
 import axios from "axios";
+import Avatar from './components/Avatar';
 
 export default function ChatPage() {
     const [onlinePeople, setOnlinePeople] = useState([]);
@@ -48,7 +49,10 @@ export default function ChatPage() {
 
                         Chatify</h2>
                     {!!onlinePeople.length && onlinePeople.map(username => (
-                        <div key={username} className="border border-b-1 p-3 text-lg">{username}</div>
+                        <div key={username} className="border border-b-1 p-3 text-lg flex gap-4 items-center">
+                            <Avatar username={username} />
+                            <span className="text-xl">{username}</span>
+                        </div>
                     ))}
                 </div>
                 <div className="p-2 text-center flex items-center justify-center">
