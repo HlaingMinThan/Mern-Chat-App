@@ -49,7 +49,7 @@ export default function ChatPage() {
 
                         Chatify</h2>
                     {!!onlinePeople.length && onlinePeople.map(username => (
-                        <div key={username} className="border border-b-1 p-3 text-lg flex gap-4 items-center">
+                        <div key={username} className="border border-b-1 p-3 text-lg flex gap-4 items-center cursor-pointer">
                             <Avatar username={username} />
                             <span className="text-lg">{username}</span>
                         </div>
