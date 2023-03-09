@@ -121,13 +121,13 @@ wss.on('connection' , (connection,req,res) => {
         }))
 
         //listen and handle client side sent messages
-        connection.on('message', (buffer) => {
+        connection.on('message', async (buffer) => {
             //change toString because we receive as a buffer
             let {recipient , text}= JSON.parse(buffer.toString())
             console.log(recipient)
             if(recipient && text) {
                 // store message
-                Message.create({
+                await Message.create({
                     recipient  : recipient._id,
                     sender : connection._id,
                     text
