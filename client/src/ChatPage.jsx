@@ -34,16 +34,16 @@ export default function ChatPage() {
         }
     }
 
-    let handleIncomingMessage = (message) => {
-        if (message) {
-            setMessages((prev) => [...prev, { message, isOur: false }]);
+    let handleIncomingMessage = (text) => {
+        if (text) {
+            setMessages((prev) => [...prev, { text, isOur: false }]);
         }
     }
 
     let handleServerMessage = (e) => {
-        let { onlineUsers, message } = JSON.parse(e.data);
+        let { onlineUsers, text } = JSON.parse(e.data);
         setUniqueOnlineUsers(onlineUsers);
-        handleIncomingMessage(message);
+        handleIncomingMessage(text);
     }
 
     let sendMessage = (e) => {
@@ -51,9 +51,9 @@ export default function ChatPage() {
         console.log('sent', ws)
         ws.send(JSON.stringify({
             recipient: selectedUser,
-            message: newMessageText
+            text: newMessageText
         }))
-        setMessages((prev) => [...prev, { message: newMessageText, isOur: true }]);
+        setMessages((prev) => [...prev, { text: newMessageText, isOur: true }]);
         setNewMessageText('');
     }
 
@@ -105,9 +105,9 @@ export default function ChatPage() {
                         )}
                         {selectedUser && (
                             <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
-                                {!!messages.length && messages.map(m => (
+                                {!!messages.length && messages.map(message => (
                                     <div>
-                                        {m.message}
+                                        {message.text}
                                     </div>
                                 ))}
                             </div>

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors';
 import User from './models/User.js'
+import Message from './models/Message.js'
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
@@ -122,16 +123,22 @@ wss.on('connection' , (connection,req,res) => {
         //listen and handle client side sent messages
         connection.on('message', (buffer) => {
             //change toString because we receive as a buffer
-            let {recipient , message}= JSON.parse(buffer.toString())
+            let {recipient , text}= JSON.parse(buffer.toString())
             console.log(recipient)
-            if(recipient && message) {
+            if(recipient && text) {
+                // store message
+                Message.create({
+                    recipient  : recipient._id,
+                    sender : connection._id,
+                    text
+                });
+                
                 [...wss.clients]
                 .filter(c => c._id === recipient._id) // check all same clients(mobile,web) connected to socket
                 .forEach(c => {
-                    onlineUsers.push({_id : c._id, username : c.username});
                     //send to specific clients
                     c.send(JSON.stringify({
-                        message
+                        text
                     }))
                 })
             }
