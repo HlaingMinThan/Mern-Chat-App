@@ -6,7 +6,7 @@ import Avatar from './components/Avatar';
 export default function ChatPage() {
     const [onlinePeople, setOnlinePeople] = useState([]);
     const [messages, setMessages] = useState([]);
-    const [selectedUsername, setSelectedUsername] = useState("");
+    const [selectedUser, setSelectedUser] = useState("");
     const [newMessageText, setNewMessageText] = useState('');
     const { user, setUser } = useContext(UserContext);
     const [ws, setWs] = useState(null);
@@ -28,7 +28,9 @@ export default function ChatPage() {
             onlineUsers.forEach(user => {
                 uniqueOnlineUser[user._id] = user.username
             });
-            setOnlinePeople(Object.values(uniqueOnlineUser));
+            setOnlinePeople(Object.entries(uniqueOnlineUser).map(userArray => {
+                return { _id: userArray[0], username: userArray[1] }
+            }));
         }
     }
 
@@ -48,7 +50,7 @@ export default function ChatPage() {
         e.preventDefault();
         console.log('sent', ws)
         ws.send(JSON.stringify({
-            recipient: selectedUsername,
+            recipient: selectedUser,
             message: newMessageText
         }))
         setMessages((prev) => [...prev, { message: newMessageText, isOur: true }]);
@@ -71,11 +73,11 @@ export default function ChatPage() {
                         </svg>
 
                         Chatify</h2>
-                    {!!onlinePeople.length && onlinePeople.map(username => (
-                        username !== user.username && (
-                            <div key={username} className={"border border-b-1 border-l-4 border-l-blue-600 p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUsername === username ? 'bg-blue-50' : '')} onClick={() => setSelectedUsername(username)}>
-                                <Avatar username={username} />
-                                <span className="text-lg">{username}</span>
+                    {!!onlinePeople.length && onlinePeople.map(u => (
+                        u.username !== user.username && (
+                            <div key={u._id} className={"border border-b-1 border-l-4 border-l-blue-600 p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUser.username === u.username ? 'bg-blue-50' : '')} onClick={() => setSelectedUser(u)}>
+                                <Avatar username={u.username} />
+                                <span className="text-lg">{u.username}</span>
                             </div>
                         )
                     ))}
@@ -96,12 +98,12 @@ export default function ChatPage() {
                 <div className="flex-grow">
 
                     <div className="relative h-full">
-                        {!selectedUsername && (
+                        {!selectedUser && (
                             <div className="flex items-center justify-center h-full text-gray-400 text-lg">
                                 &larr;Select a person to view the messages
                             </div>
                         )}
-                        {selectedUsername && (
+                        {selectedUser && (
                             <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
                                 {!!messages.length && messages.map(m => (
                                     <div>
@@ -112,7 +114,7 @@ export default function ChatPage() {
                         )}
                     </div>
                 </div>
-                {selectedUsername && (
+                {selectedUser && (
                     <form className="flex gap-2" onSubmit={sendMessage}>
                         <input type="text"
                             value={newMessageText}

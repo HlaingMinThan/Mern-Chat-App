@@ -123,9 +123,10 @@ wss.on('connection' , (connection,req,res) => {
         connection.on('message', (buffer) => {
             //change toString because we receive as a buffer
             let {recipient , message}= JSON.parse(buffer.toString())
+            console.log(recipient)
             if(recipient && message) {
                 [...wss.clients]
-                .filter(c => c.username === recipient) // check all same clients(mobile,web) connected to socket
+                .filter(c => c._id === recipient._id) // check all same clients(mobile,web) connected to socket
                 .forEach(c => {
                     onlineUsers.push({_id : c._id, username : c.username});
                     //send to specific clients
