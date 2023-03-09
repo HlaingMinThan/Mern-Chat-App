@@ -11,12 +11,12 @@ export default function ChatPage() {
     const [ws, setWs] = useState(null);
 
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:3001');
+        const socket = new WebSocket('ws://localhost:3001');
         setWs(ws);
-        ws.addEventListener('message', handleServerMessage)
+        socket.addEventListener('message', handleServerMessage)
 
         return () => {
-            ws.close()
+            socket.close()
         }
     }, []);
 
@@ -51,7 +51,7 @@ export default function ChatPage() {
                         Chatify</h2>
                     {!!onlinePeople.length && onlinePeople.map(username => (
                         username !== user.username && (
-                            <div key={username} className={"border border-b-1 p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUsername === username ? 'bg-blue-50' : '')} onClick={() => setSelectedUsername(username)}>
+                            <div key={username} className={"border border-b-1 border-l-4 border-l-blue-600 p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUsername === username ? 'bg-blue-50' : '')} onClick={() => setSelectedUsername(username)}>
                                 <Avatar username={username} />
                                 <span className="text-lg">{username}</span>
                             </div>
@@ -74,9 +74,16 @@ export default function ChatPage() {
                 <div className="flex-grow">
 
                     <div className="relative h-full">
-                        <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
-                            messages
-                        </div>
+                        {!selectedUsername && (
+                            <div className="flex items-center justify-center h-full text-gray-400 text-lg">
+                                &larr;Select a person to view the messages
+                            </div>
+                        )}
+                        {selectedUsername && (
+                            <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
+                                messages
+                            </div>
+                        )}
                     </div>
                 </div>
                 <form className="flex gap-2" >
