@@ -5,6 +5,7 @@ import Avatar from './components/Avatar';
 
 export default function ChatPage() {
     const [onlinePeople, setOnlinePeople] = useState([]);
+    const [messages, setMessages] = useState([]);
     const [selectedUsername, setSelectedUsername] = useState("");
     const [newMessageText, setNewMessageText] = useState('');
     const { user, setUser } = useContext(UserContext);
@@ -12,7 +13,7 @@ export default function ChatPage() {
 
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3001');
-        setWs(ws);
+        setWs(socket);
         socket.addEventListener('message', handleServerMessage)
 
         return () => {
@@ -20,17 +21,38 @@ export default function ChatPage() {
         }
     }, []);
 
+    let setUniqueOnlineUsers = (onlineUsers) => {
+        if (onlineUsers) {
+            let uniqueOnlineUser = {};
+
+            onlineUsers.forEach(user => {
+                uniqueOnlineUser[user._id] = user.username
+            });
+            setOnlinePeople(Object.values(uniqueOnlineUser));
+        }
+    }
+
+    let handleIncomingMessage = (message) => {
+        if (message) {
+            setMessages((prev) => [...prev, { message, isOur: false }]);
+        }
+    }
+
     let handleServerMessage = (e) => {
-        console.log(e)
-        let { onlineUsers } = JSON.parse(e.data);
+        let { onlineUsers, message } = JSON.parse(e.data);
+        setUniqueOnlineUsers(onlineUsers);
+        handleIncomingMessage(message);
+    }
 
-        let uniqueOnlineUser = {};
-
-        onlineUsers.forEach(user => {
-            uniqueOnlineUser[user._id] = user.username
-        });
-        console.log(onlineUsers)
-        setOnlinePeople(Object.values(uniqueOnlineUser));
+    let sendMessage = (e) => {
+        e.preventDefault();
+        console.log('sent', ws)
+        ws.send(JSON.stringify({
+            recipient: selectedUsername,
+            message: newMessageText
+        }))
+        setMessages((prev) => [...prev, { message: newMessageText, isOur: true }]);
+        setNewMessageText('');
     }
 
     function logout() {
@@ -81,13 +103,17 @@ export default function ChatPage() {
                         )}
                         {selectedUsername && (
                             <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
-                                messages
+                                {!!messages.length && messages.map(m => (
+                                    <div>
+                                        {m.message}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
                 </div>
                 {selectedUsername && (
-                    <form className="flex gap-2" >
+                    <form className="flex gap-2" onSubmit={sendMessage}>
                         <input type="text"
                             value={newMessageText}
                             onChange={ev => setNewMessageText(ev.target.value)}

@@ -118,7 +118,23 @@ wss.on('connection' , (connection,req,res) => {
         connection.send(JSON.stringify({
             onlineUsers
         }))
-        console.log(onlineUsers)
+
+        //listen and handle client side sent messages
+        connection.on('message', (buffer) => {
+            //change toString because we receive as a buffer
+            let {recipient , message}= JSON.parse(buffer.toString())
+            if(recipient && message) {
+                [...wss.clients]
+                .filter(c => c.username === recipient) // check all same clients(mobile,web) connected to socket
+                .forEach(c => {
+                    onlineUsers.push({_id : c._id, username : c.username});
+                    //send to specific clients
+                    c.send(JSON.stringify({
+                        message
+                    }))
+                })
+            }
+        })
     }catch(e){
         console.log(e)
         console.log('something went wrong in web socket')
