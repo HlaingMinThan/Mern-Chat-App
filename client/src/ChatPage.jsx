@@ -63,6 +63,7 @@ export default function ChatPage() {
         setNewMessageText('');
     }
 
+    //auto scroll to bottom
     useEffect(() => {
         let div = divUnderMessages.current;
         //on first render, react didn't assign the ref
@@ -70,6 +71,16 @@ export default function ChatPage() {
             div.scrollTop = div.scrollHeight;
         }
     }, [messages])
+
+    //fetch selectedUser's conversations
+    useEffect(() => {
+        if (selectedUser) {
+            axios.get(`/messages/${selectedUser._id}`).then(res => {
+                console.log(res.data)
+                setMessages(res.data)
+            })
+        }
+    }, [selectedUser])
 
     function logout() {
         axios.post('/logout').then(() => {

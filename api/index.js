@@ -21,6 +21,18 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 
+
+let authenticated = (req,res,next) => {
+    let {token} = req.cookies;
+    if(token){
+        let payload = jwt.verify(token,process.env.JWT_SECRET);
+        req.user = payload;
+        next();
+    }else {
+        res.user = null;
+    }
+}
+
 mongoose.connect(process.env.MONGO_URL)
 
 app.get('/' , (req,res) => {
@@ -89,6 +101,18 @@ app.post('/login' , async (req,res) => {
     }
 })
 
+app.get('/messages/:userId' , authenticated ,async (req,res) => {
+    let {userId}  = req.params;
+    
+    //fetch conversations between two users
+    let messages = await Message.find({
+        sender : {$in : [userId,req.user._id]},
+        recipient : {$in : [userId,req.user._id]},
+    }).sort({
+        createdAt : 'asc'
+    })
+    return res.status(200).json(messages);
+});
 app.post('/logout' , (req,res) => {
     return res.cookie('token', '').status(201).json('user logged out');
 });
