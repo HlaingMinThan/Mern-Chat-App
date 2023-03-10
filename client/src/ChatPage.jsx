@@ -10,6 +10,7 @@ export default function ChatPage() {
     const [newMessageText, setNewMessageText] = useState('');
     const { user, setUser } = useContext(UserContext);
     const [ws, setWs] = useState(null);
+    let divUnderMessages = useRef();
 
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3001');
@@ -54,12 +55,21 @@ export default function ChatPage() {
             text: newMessageText
         }))
         setMessages((prev) => [...prev, {
+            _id: Date.now(),
             text: newMessageText,
             sender: user._id,
             recipient: selectedUser._id
         }]);
         setNewMessageText('');
     }
+
+    useEffect(() => {
+        let div = divUnderMessages.current;
+        //on first render, react didn't assign the ref
+        if (div) {
+            div.scrollTop = div.scrollHeight;
+        }
+    }, [messages])
 
     function logout() {
         axios.post('/logout').then(() => {
@@ -108,14 +118,15 @@ export default function ChatPage() {
                             </div>
                         )}
                         {selectedUser && (
-                            <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
+                            <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2" ref={divUnderMessages}>
                                 {!!messages.length && messages.map(message => (
-                                    <div className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
+                                    <div key={message._id} className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
                                         <div className={`${user._id === message.sender ? 'bg-blue-500 text-white' : 'bg-white text-blackj'} p-3 m-3 w-1/2 inline-block rounded-xl text-left`}>
                                             {message.text}
                                         </div>
                                     </div>
                                 ))}
+                                <div ref={divUnderMessages}></div>
                             </div>
                         )}
                     </div>
