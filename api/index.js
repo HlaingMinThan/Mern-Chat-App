@@ -29,7 +29,7 @@ let authenticated = (req,res,next) => {
         req.user = payload;
         next();
     }else {
-        res.user = null;
+        res.json({message : 'not authenticated'})
     }
 }
 
@@ -102,17 +102,21 @@ app.post('/login' , async (req,res) => {
 })
 
 app.get('/messages/:userId' , authenticated ,async (req,res) => {
-    let {userId}  = req.params;
-    
-    //fetch conversations between two users
-    let messages = await Message.find({
-        sender : {$in : [userId,req.user._id]},
-        recipient : {$in : [userId,req.user._id]},
-    }).sort({
-        createdAt : 'asc'
-    })
-    return res.status(200).json(messages);
+    try {
+        let {userId}  = req.params;
+        //fetch conversations between two users
+        let messages = await Message.find({
+            sender : {$in : [userId,req.user._id]},
+            recipient : {$in : [userId,req.user._id]},
+        }).sort({
+            createdAt : 'asc'
+        })
+        return res.status(200).json(messages);
+    }catch (e) {
+        res.json({message : e.message})
+    }
 });
+
 app.post('/logout' , (req,res) => {
     return res.cookie('token', '').status(201).json('user logged out');
 });
@@ -170,3 +174,4 @@ wss.on('connection' , (connection,req,res) => {
         console.log('something went wrong in web socket')
     }
 })
+
