@@ -14,14 +14,17 @@ export default function ChatPage() {
     let divUnderMessages = useRef();
 
     useEffect(() => {
+        connectToWS();
+    }, []);
+
+    let connectToWS = () => {
         const socket = new WebSocket('ws://localhost:3001');
         setWs(socket);
         socket.addEventListener('message', handleServerMessage)
 
-        return () => {
-            socket.close()
-        }
-    }, []);
+        //automatically connect if connection is closed
+        socket.addEventListener('close', connectToWS)
+    }
 
     let setUniqueOnlineUsers = (onlineUsers) => {
         if (onlineUsers) {
