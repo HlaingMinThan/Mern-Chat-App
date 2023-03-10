@@ -34,16 +34,16 @@ export default function ChatPage() {
         }
     }
 
-    let handleIncomingMessage = (text) => {
-        if (text) {
-            setMessages((prev) => [...prev, { text, isOur: false }]);
+    let handleIncomingMessage = (message) => {
+        if (message) {
+            setMessages((prev) => [...prev, message]);
         }
     }
 
     let handleServerMessage = (e) => {
-        let { onlineUsers, text } = JSON.parse(e.data);
+        let { onlineUsers, message } = JSON.parse(e.data);
         setUniqueOnlineUsers(onlineUsers);
-        handleIncomingMessage(text);
+        handleIncomingMessage(message);
     }
 
     let sendMessage = (e) => {
@@ -53,7 +53,11 @@ export default function ChatPage() {
             recipient: selectedUser,
             text: newMessageText
         }))
-        setMessages((prev) => [...prev, { text: newMessageText, isOur: true }]);
+        setMessages((prev) => [...prev, {
+            text: newMessageText,
+            sender: user._id,
+            recipient: selectedUser._id
+        }]);
         setNewMessageText('');
     }
 
@@ -106,8 +110,10 @@ export default function ChatPage() {
                         {selectedUser && (
                             <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
                                 {!!messages.length && messages.map(message => (
-                                    <div>
-                                        {message.text}
+                                    <div className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
+                                        <div className={`${user._id === message.sender ? 'bg-blue-500 text-white' : 'bg-white text-blackj'} p-3 m-3 w-1/2 inline-block rounded-xl text-left`}>
+                                            {message.text}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

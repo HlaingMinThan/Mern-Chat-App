@@ -127,7 +127,7 @@ wss.on('connection' , (connection,req,res) => {
             console.log(recipient)
             if(recipient && text) {
                 // store message
-                await Message.create({
+                let message = await Message.create({
                     recipient  : recipient._id,
                     sender : connection._id,
                     text
@@ -137,9 +137,7 @@ wss.on('connection' , (connection,req,res) => {
                 .filter(c => c._id === recipient._id) // check all same clients(mobile,web) connected to socket
                 .forEach(c => {
                     //send to specific clients
-                    c.send(JSON.stringify({
-                        text
-                    }))
+                    c.send(JSON.stringify({message}))
                 })
             }
         })
