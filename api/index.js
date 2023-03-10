@@ -39,6 +39,11 @@ app.get('/' , (req,res) => {
     return res.send('hello from express chat api')
 })
 
+app.get('/people',authenticated,async(req,res) => {
+    let users = await User.find({}, ['_id','username']);
+    return res.status(200).json(users);
+});
+
 app.get('/me', (req,res) => {
     let {token} = req.cookies;
     if(token){
