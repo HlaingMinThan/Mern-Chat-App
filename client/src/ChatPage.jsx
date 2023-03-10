@@ -12,6 +12,7 @@ export default function ChatPage() {
     const { user, setUser } = useContext(UserContext);
     const [ws, setWs] = useState(null);
     let divUnderMessages = useRef();
+    let messageInput = useRef();
 
     useEffect(() => {
         connectToWS();
@@ -83,6 +84,9 @@ export default function ChatPage() {
             axios.get(`/messages/${selectedUser._id}`).then(res => {
                 setMessages(res.data)
                 setLoadingMessages(false);
+                setTimeout(() => {
+                    messageInput.current.focus()
+                }, 200);
             })
         }
     }, [selectedUser])
@@ -160,9 +164,10 @@ export default function ChatPage() {
                         )}
                     </div>
                 </div>
-                {selectedUser && (
+                {(selectedUser && !loadingMessages) && (
                     <form className="flex gap-2" onSubmit={sendMessage}>
                         <input type="text"
+                            ref={messageInput}
                             value={newMessageText}
                             onChange={ev => setNewMessageText(ev.target.value)}
                             placeholder="Type your message here"
