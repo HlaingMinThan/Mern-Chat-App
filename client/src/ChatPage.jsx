@@ -140,7 +140,7 @@ export default function ChatPage() {
                         className="text-sm bg-blue-100 py-1 px-2 text-gray-500 border rounded-sm">logout</button>
                 </div>
             </div>
-            <div className="flex flex-col bg-blue-50 w-3/4 p-2">
+            <div className="flex flex-col bg-blue-50 w-3/4">
                 <div className="flex-grow">
 
                     <div className="relative h-full">
@@ -150,29 +150,34 @@ export default function ChatPage() {
                             </div>
                         )}
                         {selectedUser && (
-                            <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2" ref={divUnderMessages}>
-
-                                {loadingMessages && (
-                                    <div className="flex justify-center items-center h-full gap-3">
-                                        <div>
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 animate-bounce">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                                            </svg>
+                            <>
+                                <div className="fixed top-0 z-50 bg-white p-5 w-full border border-blue-100 flex items-center gap-4">
+                                    <Avatar username={selectedUser.username} isOnline={onlinePeople.map(op => op._id).includes(selectedUser._id)} />
+                                    <span className="text-lg">{selectedUser.username}</span>
+                                </div>
+                                <div className="overflow-y-scroll absolute top-20 left-0 right-0 bottom-2 py-3" ref={divUnderMessages}>
+                                    {loadingMessages && (
+                                        <div className="flex justify-center items-center h-full gap-3">
+                                            <div>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 animate-bounce">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.157 2.148.279 3.238.364.466.037.893.281 1.153.671L12 21l2.652-3.978c.26-.39.687-.634 1.153-.67 1.09-.086 2.17-.208 3.238-.365 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                                                </svg>
+                                            </div>
+                                            <p className="mb-3">Wait for a sec. loading messages...</p>
                                         </div>
-                                        <p className="mb-3">Wait for a sec. loading messages...</p>
-                                    </div>
 
 
-                                )}
-                                {!loadingMessages && !!messages.length && messages.map(message => (
-                                    <div key={message._id} className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
-                                        <div className={`${user._id === message.sender ? 'bg-blue-500 text-white' : 'bg-white text-blackj'} p-3 m-3 w-1/2 inline-block rounded-xl text-left`}>
-                                            {message.text}
+                                    )}
+                                    {!loadingMessages && !!messages.length && messages.map(message => (
+                                        <div key={message._id} className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
+                                            <div className={`${user._id === message.sender ? 'bg-blue-500 text-white' : 'bg-white text-blackj'} p-3 m-3 w-1/2 inline-block rounded-xl text-left`}>
+                                                {message.text}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                                <div ref={divUnderMessages}></div>
-                            </div>
+                                    ))}
+                                    <div ref={divUnderMessages}></div>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
