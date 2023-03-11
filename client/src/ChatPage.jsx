@@ -182,7 +182,7 @@ export default function ChatPage() {
                     </div>
                 </div>
                 {(selectedUser && !loadingMessages) && (
-                    <form className="flex gap-2" onSubmit={sendMessage}>
+                    <form className="flex gap-2 mb-1" onSubmit={sendMessage}>
                         <input type="text"
                             ref={messageInput}
                             value={newMessageText}
