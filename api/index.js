@@ -178,7 +178,7 @@ wss.on('connection' , (connection,req,res) => {
         connection.on('message', async (buffer) => {
             //change toString because we receive as a buffer
             let {recipient , text}= JSON.parse(buffer.toString())
-            console.log(recipient)
+            
             if(recipient && text) {
                 // store message
                 let message = await Message.create({
