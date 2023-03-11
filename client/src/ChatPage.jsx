@@ -17,11 +17,16 @@ export default function ChatPage() {
 
     useEffect(() => {
         connectToWS();
+    }, []);
+
+    //get offline people after we get online people
+    useEffect(() => {
         axios.get('/people').then(res => {
             let offlinePeople = res.data.filter(p => !onlinePeople.map(op => op._id).includes(p._id));
+            console.log(offlinePeople)
             setOfflinePeople(offlinePeople);
         })
-    }, []);
+    }, [onlinePeople]);
 
     let connectToWS = () => {
         const socket = new WebSocket('ws://localhost:3001');
