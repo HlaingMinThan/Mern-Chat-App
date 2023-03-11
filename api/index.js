@@ -132,7 +132,34 @@ const server = app.listen(process.env.PORT,() => {
 
 const wss = new WebSocketServer({server});
 
+
 wss.on('connection' , (connection,req,res) => {
+
+    let notifyAboutOnlineUsers = () => {
+        let onlineUsers = [];
+            [...wss.clients].forEach(c => {
+                onlineUsers.push({_id : c._id, username : c.username});
+            })
+            connection.send(JSON.stringify({
+                onlineUsers
+            }));
+    }
+
+
+    //kill broken connections and notify about online users every 3 secs
+    connection.isAlive =  true;
+    connection.timer = setInterval(() => {
+        connection.ping()
+        connection.deathTimer = setTimeout(() => {
+            connection.isAlive = false;
+            connection.terminate();
+        }, 1000);
+        notifyAboutOnlineUsers();
+    }, 3000);
+
+      connection.on('pong' , () => {
+        clearTimeout(connection.deathTimer);
+    })
     try {
         let { cookie } = req.headers;
         //handle logged in user
@@ -145,13 +172,7 @@ wss.on('connection' , (connection,req,res) => {
 
         }
         //send client back for onelines user
-        let onlineUsers = [];
-        [...wss.clients].forEach(c => {
-            onlineUsers.push({_id : c._id, username : c.username});
-        })
-        connection.send(JSON.stringify({
-            onlineUsers
-        }))
+        notifyAboutOnlineUsers();
 
         //listen and handle client side sent messages
         connection.on('message', async (buffer) => {
