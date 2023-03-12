@@ -77,12 +77,21 @@ export default function ChatPage() {
             text: newMessageText,
             file
         }))
-        setMessages((prev) => [...prev, {
-            _id: Date.now(),
-            text: newMessageText,
-            sender: user._id,
-            recipient: selectedUser._id
-        }]);
+        if (!file) {
+            setMessages((prev) => [...prev, {
+                _id: Date.now(),
+                text: newMessageText,
+                sender: user._id,
+                recipient: selectedUser._id
+            }]);
+        } else {
+            setMessages((prev) => [...prev, {
+                _id: Date.now(),
+                file: file.name,
+                sender: user._id,
+                recipient: selectedUser._id
+            }]);
+        }
         setNewMessageText('');
     }
 
@@ -115,7 +124,7 @@ export default function ChatPage() {
         reader.readAsDataURL(file);
         reader.onload = function () {
             sendMessage(null, {
-                name: file.name,
+                name: Date.now() + '_' + file.name,
                 data: reader.result
             })
         };
@@ -198,7 +207,8 @@ export default function ChatPage() {
                                     {!loadingMessages && !!messages.length && messages.map(message => (
                                         <div key={message._id} className={`${user._id === message.sender ? 'text-right' : 'text-left'}`}>
                                             <div className={`${user._id === message.sender ? 'bg-blue-500 text-white' : 'bg-white text-blackj'} p-3 m-3 w-1/2 inline-block rounded-xl text-left`}>
-                                                {message.text}
+                                                {!!message.file && <a target="blank" className={`${user._id === message.sender ? 'text-blacnk' : 'text-blue-500'} underline`} href={`http://localhost:3001/uploads/${message.file}`}>{message.file}</a>}
+                                                {!message.file && message.text}
                                             </div>
                                         </div>
                                     ))}
@@ -230,6 +240,6 @@ export default function ChatPage() {
                     </form>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

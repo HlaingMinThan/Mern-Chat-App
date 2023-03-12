@@ -37,6 +37,9 @@ let authenticated = (req,res,next) => {
 
 mongoose.connect(process.env.MONGO_URL)
 
+const uploadFolderPath = new URL('uploads', import.meta.url).pathname
+app.use('/uploads',express.static(uploadFolderPath))
+
 app.get('/' , (req,res) => {
     return res.send('hello from express chat api')
 })
@@ -180,24 +183,23 @@ wss.on('connection' , (connection,req,res) => {
         connection.on('message', async (buffer) => {
             //change toString because we receive as a buffer
             let {recipient , text , file }= JSON.parse(buffer.toString())
+            let filename;
             if(file) {
                 //upload here
-                const parts = file.name.split('.');
-                const ext = parts[parts.length - 1];
-                let filename = Date.now() + '.'+ext;
-                const uploadFolderPath = new URL('uploads', import.meta.url).pathname+'/'+ filename;
+                let path = uploadFolderPath +'/'+ file.name;
                 const bufferData = new Buffer(file.data.split(',')[1], 'base64');
-                fs.writeFile(uploadFolderPath, bufferData, () => {
-                  console.log('file saved:'+uploadFolderPath);
+                fs.writeFile(path, bufferData, () => {
+                  console.log('file saved:'+path);
                 });
             }
             
-            if(recipient && text) {
+            if(recipient && (text || file)) {
                 // store message
                 let message = await Message.create({
                     recipient  : recipient._id,
                     sender : connection._id,
-                    text
+                    text ,
+                    file: file ? file.name : null
                 });
                 
                 [...wss.clients]
