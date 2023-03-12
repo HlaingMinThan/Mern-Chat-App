@@ -52,8 +52,6 @@ export default function ChatPage() {
 
     let handleIncomingMessage = (message) => {
         if (message) {
-            console.log(openUserRef.current.value)
-            console.log(message.sender)
             if (openUserRef.current.value === message.sender) {
                 setMessages((prev) => [...prev, message]);
             }
