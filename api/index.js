@@ -10,6 +10,8 @@ import jwt from 'jsonwebtoken';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import {WebSocketServer} from 'ws';
+import fs from 'fs';
+
 
 const app = express();
 
@@ -177,7 +179,18 @@ wss.on('connection' , (connection,req,res) => {
         //listen and handle client side sent messages
         connection.on('message', async (buffer) => {
             //change toString because we receive as a buffer
-            let {recipient , text}= JSON.parse(buffer.toString())
+            let {recipient , text , file }= JSON.parse(buffer.toString())
+            if(file) {
+                //upload here
+                const parts = file.name.split('.');
+                const ext = parts[parts.length - 1];
+                let filename = Date.now() + '.'+ext;
+                const uploadFolderPath = new URL('uploads', import.meta.url).pathname+'/'+ filename;
+                const bufferData = new Buffer(file.data.split(',')[1], 'base64');
+                fs.writeFile(uploadFolderPath, bufferData, () => {
+                  console.log('file saved:'+uploadFolderPath);
+                });
+            }
             
             if(recipient && text) {
                 // store message
