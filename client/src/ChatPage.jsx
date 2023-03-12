@@ -13,6 +13,7 @@ export default function ChatPage() {
     const { user, setUser } = useContext(UserContext);
     const [ws, setWs] = useState(null);
     let divUnderMessages = useRef();
+    let openUserRef = useRef();
     let messageInput = useRef();
 
     useEffect(() => {
@@ -51,7 +52,11 @@ export default function ChatPage() {
 
     let handleIncomingMessage = (message) => {
         if (message) {
-            setMessages((prev) => [...prev, message]);
+            console.log(openUserRef.current.value)
+            console.log(message.sender)
+            if (openUserRef.current.value === message.sender) {
+                setMessages((prev) => [...prev, message]);
+            }
         }
     }
 
@@ -119,7 +124,7 @@ export default function ChatPage() {
                         u.username !== user.username && (
                             <div key={u._id} className={"border border-b-1  p-3 text-lg flex gap-4 items-center cursor-pointer " + (selectedUser.username === u.username ? 'bg-blue-50 border-l-4 border-l-blue-600' : '')} onClick={() => setSelectedUser(u)}>
                                 <Avatar username={u.username} isOnline={true} />
-                                <span className="text-lg">{u.username}</span>
+                                <span className="text-lg" >{u.username}</span>
                             </div>
                         )
                     ))}
@@ -158,6 +163,7 @@ export default function ChatPage() {
                                 <div className="fixed top-0 z-50 bg-white p-5 w-full border border-blue-100 flex items-center gap-4">
                                     <Avatar username={selectedUser.username} isOnline={onlinePeople.map(op => op._id).includes(selectedUser._id)} />
                                     <span className="text-lg">{selectedUser.username}</span>
+                                    <input type="hidden" value={selectedUser._id} ref={openUserRef} />
                                 </div>
                                 <div className="overflow-y-scroll absolute top-20 left-0 right-0 bottom-2 py-3" ref={divUnderMessages}>
                                     {loadingMessages && (
