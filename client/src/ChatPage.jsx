@@ -22,10 +22,12 @@ export default function ChatPage() {
 
     //get offline people after we get online people
     useEffect(() => {
-        axios.get('/people').then(res => {
-            let offlinePeople = res.data.filter(p => !onlinePeople.map(op => op._id).includes(p._id));
-            setOfflinePeople(offlinePeople);
-        })
+        if (onlinePeople.length) {
+            axios.get('/people').then(res => {
+                let offlinePeople = res.data.filter(p => !onlinePeople.map(op => op._id).includes(p._id));
+                setOfflinePeople(offlinePeople);
+            })
+        }
     }, [onlinePeople]);
 
     let connectToWS = () => {
